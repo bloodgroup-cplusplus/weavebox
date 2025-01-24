@@ -15,7 +15,10 @@ import (
 	"github.com/bradfitz/http2"
 )
 
-const useClosedConn = "use of closed network connection"
+const (
+	useClosedConn = "use of closed network connection"
+	SIGUSR2 = syscall.Signal(12)
+)
 
 // Server provides a gracefull shutdown of http server.
 type server struct {
@@ -112,7 +115,7 @@ func (s *server) closeNotify(l net.Listener) {
 		syscall.SIGTERM,
 		syscall.SIGKILL,
 		syscall.SIGQUIT,
-		syscall.SIGUSR2,
+		SIGUSR2,
 		syscall.SIGINT,
 	)
 	sign := <-sig
@@ -123,7 +126,7 @@ func (s *server) closeNotify(l net.Listener) {
 	case syscall.SIGKILL:
 		l.Close()
 		s.fquit <- struct{}{}
-	case syscall.SIGUSR2:
+	case SIGUSR2:
 		panic("USR2 => not implemented")
 	}
 }
